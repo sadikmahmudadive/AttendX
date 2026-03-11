@@ -89,22 +89,29 @@ export default function DownloadPage() {
     try {
       const normalized = pin.trim().toUpperCase();
       console.log("searching for pin", normalized);
+      // fetch all custom releases (should be few) then match locally
       const q = query(
         collection(db, "releases"),
-        where("type", "==", "custom"),
-        where("pin", "==", normalized)
+        where("type", "==", "custom")
       );
       const snap = await getDocs(q);
-
-      if (snap.empty) {
+      console.log("custom releases count", snap.size);
+      let found = null;
+      snap.forEach((docSnap) => {
+        const data = docSnap.data();
+        if (data.pin && data.pin.toUpperCase() === normalized) {
+          found = { id: docSnap.id, ...data };
+        }
+      });
+      if (!found) {
         setPinError("Invalid PIN. Please check and try again.");
         toast.error("Invalid PIN");
       } else {
-        const release = { id: snap.docs[0].id, ...snap.docs[0].data() };
-        setCustomRelease(release);
-        toast.success(`Found: ${release.institutionName || release.version}`);
+        setCustomRelease(found);
+        toast.success(`Found: ${found.institutionName || found.version}`);
       }
-    } catch {
+    } catch (err) {
+      console.error("pin query error", err);
       setPinError("Something went wrong. Please try again.");
     } finally {
       setPinLoading(false);
