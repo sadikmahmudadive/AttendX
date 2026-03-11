@@ -48,7 +48,7 @@ const plans = [
       "Priority updates",
     ],
     cta: "Request Custom Build",
-    href: "/register",
+    href: "/contact",
     popular: true,
     color: "from-blue-500 to-cyan-400",
   },

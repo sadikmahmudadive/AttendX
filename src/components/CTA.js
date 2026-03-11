@@ -34,7 +34,7 @@ export default function CTA() {
                   <ArrowRight size={18} />
                 </Link>
                 <Link
-                  href="/register"
+                  href="/contact"
                   className="inline-flex items-center gap-2 bg-white/10 text-white font-semibold px-8 py-3.5 rounded-xl border border-white/20 hover:bg-white/20 transition-all hover:-translate-y-0.5"
                 >
                   Request Custom Build
