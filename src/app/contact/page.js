@@ -58,6 +58,14 @@ export default function ContactPage() {
               your institution's requirements.
             </p>
           </AnimatedSection>
+          {/* Debug info to help diagnose Firestore permission issues */}
+          <AnimatedSection delay={0.2}>
+            <div className="mt-6 text-xs text-slate-500">
+              <div>Firebase Project ID: {process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "(not set)"}</div>
+              <div>Firestore initialized: {db ? "yes" : "no"}</div>
+              <div className="mt-2">If the Project ID is incorrect or blank, check your Vercel `NEXT_PUBLIC_FIREBASE_*` environment variables and redeploy.</div>
+            </div>
+          </AnimatedSection>
 
           <AnimatedSection delay={0.1}>
             <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
