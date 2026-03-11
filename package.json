@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "cloudinary": "^2.5.1",
     "firebase": "^11.4.0",
     "framer-motion": "^12.4.7",
@@ -16,8 +17,7 @@
     "next": "^15.2.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hot-toast": "^2.5.2",
-    "@sendgrid/mail": "^8.11.0"
+    "react-hot-toast": "^2.5.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.14",
