@@ -90,17 +90,22 @@ export default function AdminPage() {
           setReleases(relSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
           setUsers(userSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
           setRequests(reqSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+          return { relSnap, userSnap, reqSnap };
         } catch {
           toast.error("Failed to load data");
+          return {};
         } finally {
           setLoading(false);
         }
       };
       if (user && profile?.role === "admin") {
-        await fetchData();
-        // after fetching, auto-create any missing releases for completed requests
-        const missing = requests.filter((r) => r.status === "completed" && !releases.find((rel) => rel.pin === r.pin));
-        for (const req of missing) {
+        // fetchData returns snapshots so we can inspect values immediately
+      const snaps = await fetchData();
+      // after fetching, auto-create any missing releases for completed requests
+      const rels = snaps.relSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const reqs = snaps.reqSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const missing = reqs.filter((r) => r.status === "completed" && !rels.find((rel) => rel.pin === r.pin));
+      for (const req of missing) {
           try {
             await addDoc(collection(db, "releases"), {
               version: "custom-request",
