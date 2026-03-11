@@ -7,6 +7,7 @@ export async function POST(req) {
     const apiKey = process.env.SENDGRID_API_KEY;
     const from = process.env.EMAIL_FROM;
     if (!apiKey || !from) {
+      console.warn("SendGrid credentials missing");
       return new Response(JSON.stringify({ error: "SendGrid not configured" }), { status: 500 });
     }
     if (!to) {
