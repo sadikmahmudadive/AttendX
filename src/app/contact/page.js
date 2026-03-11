@@ -12,6 +12,7 @@ export default function ContactPage() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [lastError, setLastError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,6 +40,7 @@ export default function ContactPage() {
       setMessage("");
     } catch (err) {
       console.error("Contact form submission error:", err);
+      setLastError(err);
       toast.error(`Failed to send request: ${err?.message || "unknown error"}`);
     } finally {
       setSubmitting(false);
@@ -64,6 +66,12 @@ export default function ContactPage() {
               <div>Firebase Project ID: {process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "(not set)"}</div>
               <div>Firestore initialized: {db ? "yes" : "no"}</div>
               <div className="mt-2">If the Project ID is incorrect or blank, check your Vercel `NEXT_PUBLIC_FIREBASE_*` environment variables and redeploy.</div>
+              {lastError && (
+                <div className="mt-2 p-3 bg-black/40 rounded text-xs text-red-300">
+                  <div className="font-medium">Last error (full):</div>
+                  <pre className="whitespace-pre-wrap max-h-48 overflow-auto text-xs mt-1">{JSON.stringify(lastError, Object.getOwnPropertyNames(lastError), 2)}</pre>
+                </div>
+              )}
             </div>
           </AnimatedSection>
 
