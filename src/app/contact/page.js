@@ -21,6 +21,12 @@ export default function ContactPage() {
     }
     setSubmitting(true);
     try {
+      if (!db) {
+        console.error("Firestore not initialized: missing NEXT_PUBLIC_FIREBASE_* env vars or firebase init failed");
+        toast.error("Failed to send request: Firebase not configured");
+        setSubmitting(false);
+        return;
+      }
       await addDoc(collection(db, "requests"), {
         name: name.trim(),
         email: email.trim(),
@@ -32,8 +38,8 @@ export default function ContactPage() {
       setEmail("");
       setMessage("");
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to send request");
+      console.error("Contact form submission error:", err);
+      toast.error(`Failed to send request: ${err?.message || "unknown error"}`);
     } finally {
       setSubmitting(false);
     }
