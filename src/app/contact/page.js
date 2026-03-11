@@ -23,41 +23,16 @@ export default function ContactPage() {
     }
     setSubmitting(true);
     try {
-      if (!db) {
-        console.error("Firestore not initialized: missing NEXT_PUBLIC_FIREBASE_* env vars or firebase init failed");
-        toast.error("Failed to send request: Firebase not configured");
-        setSubmitting(false);
-        return;
-      }
-      // generate a unique 6-char PIN
-      function generatePIN() {
-        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-        let pin = "";
-        const arr = new Uint32Array(6);
-        crypto.getRandomValues(arr);
-        for (let i = 0; i < 6; i++) pin += chars[arr[i] % chars.length];
-        return pin;
-      }
-
-      // ensure uniqueness with a few retries
-      let pin = generatePIN();
-      for (let attempt = 0; attempt < 5; attempt++) {
-        const q = query(collection(db, "requests"), where("pin", "==", pin));
-        const snap = await getDocs(q);
-        if (snap.empty) break;
-        pin = generatePIN();
-      }
-
-      await addDoc(collection(db, "requests"), {
-        name: name.trim(),
-        email: email.trim(),
-        message: message.trim(),
-        pin,
-        status: "pending",
-        createdAt: serverTimestamp(),
+      // send to server API which uses admin SDK (bypasses rules)
+      const resp = await fetch("/api/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), message: message.trim() }),
       });
-      setLastPin(pin);
-      toast.success(`Request submitted — PIN: ${pin}`);
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || "request failed");
+      setLastPin(data.pin);
+      toast.success(`Request submitted — PIN: ${data.pin}`);
       setName("");
       setEmail("");
       setMessage("");
