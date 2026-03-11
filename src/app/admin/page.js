@@ -201,6 +201,41 @@ export default function AdminPage() {
       await updateDoc(doc(db, "requests", id), { status: newStatus, updatedAt: serverTimestamp() });
       setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r)));
       toast.success("Request status updated");
+      // when marking completed, ensure a release exists for the pin
+      if (newStatus === "completed") {
+        const reqObj = requests.find((r) => r.id === id);
+        if (reqObj?.pin) {
+          try {
+            const relQ = query(
+              collection(db, "releases"),
+              where("pin", "==", reqObj.pin)
+            );
+            const relSnap = await getDocs(relQ);
+            if (relSnap.empty) {
+              // create a placeholder custom release entry
+              await addDoc(collection(db, "releases"), {
+                version: "custom-request",
+                notes: `Created from request ${reqObj.id}`,
+                type: "custom",
+                downloadUrl: "", // admin should fill later
+                fileSize: "—",
+                downloads: 0,
+                institutionName: reqObj.name || "",
+                pin: reqObj.pin,
+                createdAt: serverTimestamp(),
+              });
+              toast.success("Custom release created for request");
+              // refresh release list
+              const snap = await getDocs(
+                query(collection(db, "releases"), orderBy("createdAt", "desc"))
+              );
+              setReleases(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+            }
+          } catch (e) {
+            console.error("error creating release for request", e);
+          }
+        }
+      }
       // Notify requester via server API (if configured)
       try {
         const reqObj = requests.find((r) => r.id === id);
