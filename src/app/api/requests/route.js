@@ -1,13 +1,20 @@
 import admin from "firebase-admin";
 
 if (!admin.apps.length) {
-  // initialize with service account credentials from env
+  // initialize using a service account JSON blob stored in ONE env variable
+  // set ADMIN_SA_JSON in Vercel to the full JSON string (escaped properly)
+  let sa;
+  try {
+    sa = JSON.parse(process.env.ADMIN_SA_JSON || "{}");
+  } catch (e) {
+    console.error("Failed to parse ADMIN_SA_JSON", e);
+    sa = {};
+  }
+  if (!sa.project_id) {
+    console.error("service account missing project_id");
+  }
   admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-    }),
+    credential: admin.credential.cert(sa),
   });
 }
 
