@@ -13,6 +13,7 @@ import {
   deleteDoc,
   doc,
   serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import toast from "react-hot-toast";
@@ -168,6 +169,16 @@ export default function AdminPage() {
       toast.success("Release deleted");
     } catch {
       toast.error("Failed to delete release");
+    }
+  };
+
+  const updateRequestStatus = async (id, newStatus) => {
+    try {
+      await updateDoc(doc(db, "requests", id), { status: newStatus, updatedAt: serverTimestamp() });
+      setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r)));
+      toast.success("Request status updated");
+    } catch {
+      toast.error("Failed to update status");
     }
   };
 
@@ -492,24 +503,25 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {requests.map((r) => (
-                      <tr
-                        key={r.id}
-                        className="border-t border-white/5 hover:bg-white/[0.02]"
-                      >
-                        <td className="px-6 py-4 text-white">
-                          {r.name || "—"}
-                        </td>
+                      <tr key={r.id} className="border-t border-white/5 hover:bg-white/[0.02]">
+                        <td className="px-6 py-4 text-white">{r.name || "—"}</td>
                         <td className="px-6 py-4 text-slate-400">
                           {r.email}
                         </td>
+                        <td className="px-6 py-4 text-slate-400"><div className="max-w-xs truncate">{r.message}</div></td>
+                        <td className="px-6 py-4 text-slate-400">{r.pin || "—"}</td>
                         <td className="px-6 py-4 text-slate-400">
-                          <div className="max-w-xs truncate">{r.message}</div>
+                          <select
+                            value={r.status || "pending"}
+                            onChange={(e) => updateRequestStatus(r.id, e.target.value)}
+                            className="input-dark text-sm"
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                          </select>
                         </td>
-                        <td className="px-6 py-4 text-slate-400">
-                          {r.createdAt?.toDate
-                            ? r.createdAt.toDate().toLocaleDateString()
-                            : "—"}
-                        </td>
+                        <td className="px-6 py-4 text-slate-400">{r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString() : "—"}</td>
                       </tr>
                     ))}
                   </tbody>

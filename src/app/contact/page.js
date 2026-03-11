@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import toast from "react-hot-toast";
 import AnimatedSection from "@/components/AnimatedSection";
@@ -13,6 +13,7 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [lastError, setLastError] = useState(null);
+  const [lastPin, setLastPin] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,13 +29,35 @@ export default function ContactPage() {
         setSubmitting(false);
         return;
       }
+      // generate a unique 6-char PIN
+      function generatePIN() {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        let pin = "";
+        const arr = new Uint32Array(6);
+        crypto.getRandomValues(arr);
+        for (let i = 0; i < 6; i++) pin += chars[arr[i] % chars.length];
+        return pin;
+      }
+
+      // ensure uniqueness with a few retries
+      let pin = generatePIN();
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const q = query(collection(db, "requests"), where("pin", "==", pin));
+        const snap = await getDocs(q);
+        if (snap.empty) break;
+        pin = generatePIN();
+      }
+
       await addDoc(collection(db, "requests"), {
         name: name.trim(),
         email: email.trim(),
         message: message.trim(),
+        pin,
+        status: "pending",
         createdAt: serverTimestamp(),
       });
-      toast.success("Request submitted — we'll be in touch soon!");
+      setLastPin(pin);
+      toast.success(`Request submitted — PIN: ${pin}`);
       setName("");
       setEmail("");
       setMessage("");
