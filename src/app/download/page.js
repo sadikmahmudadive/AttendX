@@ -99,6 +99,7 @@ export default function DownloadPage() {
       let found = null;
       snap.forEach((docSnap) => {
         const data = docSnap.data();
+        console.log("release", docSnap.id, data.pin);
         if (data.pin && data.pin.toUpperCase() === normalized) {
           found = { id: docSnap.id, ...data };
         }
