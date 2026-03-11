@@ -84,6 +84,19 @@ export default function ContactPage() {
             </p>
           </AnimatedSection>
           {/* Show generated PIN to user after submit */}
+          {/* Temporary debug panel: shows frontend project and Firestore error for troubleshooting */}
+          <AnimatedSection delay={0.15}>
+            <div className="mt-6 text-xs text-slate-500">
+              <div>Firebase Project ID: {process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "(not set)"}</div>
+              <div>Firestore initialized: {db ? "yes" : "no"}</div>
+              {lastError && (
+                <div className="mt-2 p-3 bg-black/40 rounded text-xs text-red-300">
+                  <div className="font-medium">Last error (full):</div>
+                  <pre className="whitespace-pre-wrap max-h-48 overflow-auto text-xs mt-1">{JSON.stringify(lastError, Object.getOwnPropertyNames(lastError), 2)}</pre>
+                </div>
+              )}
+            </div>
+          </AnimatedSection>
           {lastPin && (
             <AnimatedSection delay={0.2}>
               <div className="mt-6 p-4 bg-black/50 rounded-md max-w-lg">
