@@ -87,10 +87,12 @@ export default function DownloadPage() {
     setCustomRelease(null);
 
     try {
+      const normalized = pin.trim().toUpperCase();
+      console.log("searching for pin", normalized);
       const q = query(
         collection(db, "releases"),
         where("type", "==", "custom"),
-        where("pin", "==", pin.trim())
+        where("pin", "==", normalized)
       );
       const snap = await getDocs(q);
 

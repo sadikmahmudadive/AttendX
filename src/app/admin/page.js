@@ -138,7 +138,7 @@ export default function AdminPage() {
 
       if (uploadType === "custom") {
         releaseDoc.institutionName = institutionName.trim();
-        releaseDoc.pin = pin;
+        releaseDoc.pin = pin.toUpperCase(); // store uppercase for consistency
       }
 
       await addDoc(collection(db, "releases"), releaseDoc);
