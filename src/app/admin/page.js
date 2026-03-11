@@ -67,6 +67,11 @@ export default function AdminPage() {
   const [institutionName, setInstitutionName] = useState("");
   const [pin, setPin] = useState("");
 
+  // sendgrid test email state
+  const [testEmail, setTestEmail] = useState("");
+  const [sendingTest, setSendingTest] = useState(false);
+
+
   useEffect(() => {
     if (!authLoading && (!user || profile?.role !== "admin")) {
       router.push("/");
@@ -157,6 +162,25 @@ export default function AdminPage() {
     }
   };
 
+  const sendTestEmail = async () => {
+    if (!testEmail.trim()) return;
+    setSendingTest(true);
+    try {
+      const resp = await fetch("/api/sendgrid-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to: testEmail.trim() }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || "failed");
+      toast.success("Test email sent");
+    } catch (err) {
+      toast.error("Email failed: " + (err.message || err));
+    } finally {
+      setSendingTest(false);
+    }
+  };
+
   const handleDelete = async (release) => {
     const label =
       release.type === "custom"
@@ -240,6 +264,29 @@ export default function AdminPage() {
                 className="inline-flex items-center gap-2 !py-2.5 px-5 rounded-xl font-medium text-sm border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 transition-colors"
               >
                 <Building2 size={16} /> Custom Build
+              </button>
+            </div>
+          </div>
+
+          {/* SendGrid test email */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Send test email to
+            </label>
+            <div className="flex gap-2 max-w-md">
+              <input
+                type="email"
+                placeholder="user@example.com"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                className="input-dark flex-1 px-4"
+              />
+              <button
+                onClick={sendTestEmail}
+                className="btn-secondary"
+                disabled={sendingTest || !testEmail}
+              >
+                {sendingTest ? "Sending…" : "Send"}
               </button>
             </div>
           </div>
