@@ -30,6 +30,7 @@ import {
   Eye,
   EyeOff,
   Link2,
+  Mail,
   Plus,
 } from "lucide-react";
 
