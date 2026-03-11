@@ -66,15 +66,18 @@ export default function Navbar() {
 
           {/* Desktop links */}
           <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-sm text-slate-400 hover:text-white transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-gradient-to-r after:from-[#0078d7] after:to-[#00d4aa] hover:after:w-full after:transition-all"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const href = link.href.startsWith("#") ? `/${link.href}` : link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={href}
+                  className="text-sm text-slate-400 hover:text-white transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-gradient-to-r after:from-[#0078d7] after:to-[#00d4aa] hover:after:w-full after:transition-all"
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Auth buttons */}
@@ -170,16 +173,19 @@ export default function Navbar() {
             className="lg:hidden glass border-t border-white/5 overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="block px-4 py-3 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) => {
+                const href = link.href.startsWith("#") ? `/${link.href}` : link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={href}
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-4 py-3 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
               <div className="h-px bg-white/5 my-2" />
               {user ? (
                 <>
