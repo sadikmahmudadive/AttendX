@@ -79,50 +79,53 @@ export default function AdminPage() {
   }, [user, profile, authLoading, router]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [relSnap, userSnap, reqSnap] = await Promise.all([
-          getDocs(query(collection(db, "releases"), orderBy("createdAt", "desc"))),
-          getDocs(collection(db, "users")),
-          getDocs(collection(db, "requests")),
-        ]);
-        setReleases(relSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
-        setUsers(userSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
-        setRequests(reqSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
-      } catch {
-        toast.error("Failed to load data");
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (user && profile?.role === "admin") {
-      await fetchData();
-      // after fetching, auto-create any missing releases for completed requests
-      const missing = requests.filter((r) => r.status === "completed" && !releases.find((rel) => rel.pin === r.pin));
-      for (const req of missing) {
+    const loadAndSync = async () => {
+      const fetchData = async () => {
         try {
-          await addDoc(collection(db, "releases"), {
-            version: "custom-request",
-            notes: `Auto-created from request ${req.id}`,
-            type: "custom",
-            downloadUrl: "",
-            fileSize: "—",
-            downloads: 0,
-            institutionName: req.name || "",
-            pin: req.pin,
-            createdAt: serverTimestamp(),
-          });
-          console.log("auto-created release for", req.pin);
-        } catch (e) {
-          console.error("auto create release failed", e);
+          const [relSnap, userSnap, reqSnap] = await Promise.all([
+            getDocs(query(collection(db, "releases"), orderBy("createdAt", "desc"))),
+            getDocs(collection(db, "users")),
+            getDocs(collection(db, "requests")),
+          ]);
+          setReleases(relSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+          setUsers(userSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+          setRequests(reqSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        } catch {
+          toast.error("Failed to load data");
+        } finally {
+          setLoading(false);
+        }
+      };
+      if (user && profile?.role === "admin") {
+        await fetchData();
+        // after fetching, auto-create any missing releases for completed requests
+        const missing = requests.filter((r) => r.status === "completed" && !releases.find((rel) => rel.pin === r.pin));
+        for (const req of missing) {
+          try {
+            await addDoc(collection(db, "releases"), {
+              version: "custom-request",
+              notes: `Auto-created from request ${req.id}`,
+              type: "custom",
+              downloadUrl: "",
+              fileSize: "—",
+              downloads: 0,
+              institutionName: req.name || "",
+              pin: req.pin,
+              createdAt: serverTimestamp(),
+            });
+            console.log("auto-created release for", req.pin);
+          } catch (e) {
+            console.error("auto create release failed", e);
+          }
+        }
+        // refresh lists if we added any
+        if (missing.length) {
+          const relSnap = await getDocs(query(collection(db, "releases"), orderBy("createdAt", "desc")));
+          setReleases(relSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
         }
       }
-      // refresh lists if we added any
-      if (missing.length) {
-        const relSnap = await getDocs(query(collection(db, "releases"), orderBy("createdAt", "desc")));
-        setReleases(relSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
-      }
-    }
+    };
+    loadAndSync();
   }, [user, profile]);
 
   const freeReleases = releases.filter((r) => r.type === "free" || !r.type);
