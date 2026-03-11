@@ -105,23 +105,9 @@ export default function DownloadPage() {
         }
       });
       if (!found) {
-        // maybe the PIN corresponds to a request that hasn't been fulfilled yet
-        const rq = query(
-          collection(db, "requests"),
-          where("pin", "==", normalized)
-        );
-        const rqSnap = await getDocs(rq);
-        if (!rqSnap.empty) {
-          const rdoc = rqSnap.docs[0];
-          const rdata = rdoc.data();
-          setPinError(
-            `Build not ready yet (status: ${rdata.status || "pending"}). Please wait or contact us.`
-          );
-          toast.error("Build not available yet");
-        } else {
-          setPinError("Invalid PIN. Please check and try again.");
-          toast.error("Invalid PIN");
-        }
+        // no matching release yet; pin may still be pending in requests
+        setPinError("Build not ready yet. Please check back later or contact support.");
+        toast.error("Build not available yet");
       } else {
         setCustomRelease(found);
         toast.success(`Found: ${found.institutionName || found.version}`);
