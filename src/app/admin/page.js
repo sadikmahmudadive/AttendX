@@ -177,6 +177,17 @@ export default function AdminPage() {
       await updateDoc(doc(db, "requests", id), { status: newStatus, updatedAt: serverTimestamp() });
       setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r)));
       toast.success("Request status updated");
+      // Notify requester via server API (if configured)
+      try {
+        const reqObj = requests.find((r) => r.id === id);
+        if (reqObj?.email) {
+          fetch("/api/notify-request", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ to: reqObj.email, name: reqObj.name, pin: reqObj.pin, status: newStatus }),
+          }).catch(() => {});
+        }
+      } catch {}
     } catch {
       toast.error("Failed to update status");
     }

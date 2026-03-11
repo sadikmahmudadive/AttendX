@@ -83,20 +83,16 @@ export default function ContactPage() {
               your institution's requirements.
             </p>
           </AnimatedSection>
-          {/* Debug info to help diagnose Firestore permission issues */}
-          <AnimatedSection delay={0.2}>
-            <div className="mt-6 text-xs text-slate-500">
-              <div>Firebase Project ID: {process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "(not set)"}</div>
-              <div>Firestore initialized: {db ? "yes" : "no"}</div>
-              <div className="mt-2">If the Project ID is incorrect or blank, check your Vercel `NEXT_PUBLIC_FIREBASE_*` environment variables and redeploy.</div>
-              {lastError && (
-                <div className="mt-2 p-3 bg-black/40 rounded text-xs text-red-300">
-                  <div className="font-medium">Last error (full):</div>
-                  <pre className="whitespace-pre-wrap max-h-48 overflow-auto text-xs mt-1">{JSON.stringify(lastError, Object.getOwnPropertyNames(lastError), 2)}</pre>
-                </div>
-              )}
-            </div>
-          </AnimatedSection>
+          {/* Show generated PIN to user after submit */}
+          {lastPin && (
+            <AnimatedSection delay={0.2}>
+              <div className="mt-6 p-4 bg-black/50 rounded-md max-w-lg">
+                <div className="text-sm text-slate-400">Your request has been submitted.</div>
+                <div className="mt-2 font-mono text-white text-lg">PIN: {lastPin}</div>
+                <div className="text-xs text-slate-500 mt-2">Save this PIN to track your custom build progress. We'll also notify you when status updates.</div>
+              </div>
+            </AnimatedSection>
+          )}
 
           <AnimatedSection delay={0.1}>
             <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
