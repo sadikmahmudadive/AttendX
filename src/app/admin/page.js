@@ -95,7 +95,34 @@ export default function AdminPage() {
         setLoading(false);
       }
     };
-    if (user && profile?.role === "admin") fetchData();
+    if (user && profile?.role === "admin") {
+      await fetchData();
+      // after fetching, auto-create any missing releases for completed requests
+      const missing = requests.filter((r) => r.status === "completed" && !releases.find((rel) => rel.pin === r.pin));
+      for (const req of missing) {
+        try {
+          await addDoc(collection(db, "releases"), {
+            version: "custom-request",
+            notes: `Auto-created from request ${req.id}`,
+            type: "custom",
+            downloadUrl: "",
+            fileSize: "—",
+            downloads: 0,
+            institutionName: req.name || "",
+            pin: req.pin,
+            createdAt: serverTimestamp(),
+          });
+          console.log("auto-created release for", req.pin);
+        } catch (e) {
+          console.error("auto create release failed", e);
+        }
+      }
+      // refresh lists if we added any
+      if (missing.length) {
+        const relSnap = await getDocs(query(collection(db, "releases"), orderBy("createdAt", "desc")));
+        setReleases(relSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      }
+    }
   }, [user, profile]);
 
   const freeReleases = releases.filter((r) => r.type === "free" || !r.type);
