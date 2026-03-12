@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/AuthContext";
-import { Menu, X, ChevronDown, LogOut, User, Shield } from "lucide-react";
+import { Menu, X, ChevronDown, LogOut, User, Shield, Sun, Moon } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import toast from "react-hot-toast";
@@ -24,12 +24,30 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // theme persistence
+  useEffect(() => {
+    const saved = localStorage.getItem("theme");
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+      setTheme("light");
+    }
+  }, []);
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((t) => (t === "dark" ? "light" : "dark"));
+  };
 
   const handleSignOut = async () => {
     try {
@@ -153,6 +171,15 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* Theme toggle button */}
+          <button
+            onClick={toggleTheme}
+            className="hidden lg:block text-slate-300 hover:text-white p-2"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+
           {/* Mobile toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -187,6 +214,13 @@ export default function Navbar() {
                 );
               })}
               <div className="h-px bg-white/5 my-2" />
+              {/* mobile theme toggle */}
+              <button
+                onClick={toggleTheme}
+                className="flex items-center gap-2 w-full px-4 py-3 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />} Theme
+              </button>
               {user ? (
                 <>
                   <Link

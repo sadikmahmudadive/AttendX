@@ -15,6 +15,16 @@
   --gradient-hero: linear-gradient(160deg, #0a0e1a 0%, #0f1729 40%, #0a1628 100%);
 }
 
+/* light theme override */
+[data-theme="light"] {
+  --bg-dark: #ffffff;
+  --bg-card: #f9fafb;
+  --bg-card-hover: #e5e7eb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --gradient-hero: linear-gradient(160deg, #ffffff 0%, #f3f4f6 40%, #ffffff 100%);
+}
+
 /* ===== Base ===== */
 html {
   scroll-behavior: smooth;
@@ -24,6 +34,17 @@ body {
   background: var(--bg-dark);
   color: var(--text-primary);
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* light theme glass tweaks */
+[data-theme="light"] .glass {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+/* ensure existing white text adapts */
+[data-theme="light"] .text-white {
+  color: var(--text-primary) !important;
 }
 
 ::selection {
