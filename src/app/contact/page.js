@@ -122,6 +122,6 @@ export default function ContactPage() {
         </div>
       </div>
       <Footer />
-    </>
+    </> // end fragment
   );
 }
