@@ -53,9 +53,9 @@ export default function ContactPage() {
             <h1 className="text-3xl font-extrabold text-white mb-4">
               Request a Custom Build
             </h1>
-            <p className="text-slate-400 mb-8">
-              Fill out the form below and our team will contact you to discuss
-              your institution's requirements.
+            <p className="text-slate-400 mb-8 max-w-xl">
+              Fill out the short form and our team will reach out with a branded
+              installer. You’ll receive a secure PIN once the build is ready.
             </p>
           </AnimatedSection>
           {/* Show generated PIN to user after submit */}
@@ -71,7 +71,8 @@ export default function ContactPage() {
           )}
 
           <AnimatedSection delay={0.1}>
-            <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
+            <div className="glass rounded-2xl p-8 max-w-lg mx-auto">
+              <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">
                   Institution / Name

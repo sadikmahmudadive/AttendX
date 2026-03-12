@@ -88,18 +88,15 @@ export default function DownloadPage() {
 
     try {
       const normalized = pin.trim().toUpperCase();
-      console.log("searching for pin", normalized);
       // fetch all custom releases (should be few) then match locally
       const q = query(
         collection(db, "releases"),
         where("type", "==", "custom")
       );
       const snap = await getDocs(q);
-      console.log("custom releases count", snap.size);
       let found = null;
       snap.forEach((docSnap) => {
         const data = docSnap.data();
-        console.log("release", docSnap.id, data.pin);
         if (data.pin && data.pin.toUpperCase() === normalized) {
           found = { id: docSnap.id, ...data };
         }
@@ -135,12 +132,13 @@ export default function DownloadPage() {
         <div className="fixed top-1/4 right-1/4 w-[500px] h-[400px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection className="mb-12">
+          <AnimatedSection className="mb-12 text-center">
             <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3">
               Download <span className="gradient-text">AttendX</span>
             </h1>
-            <p className="text-slate-400 text-lg">
-              Get the free version or download your custom institutional build.
+            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+              Choose the free version or enter your institution's PIN to access a
+              custom branded installer.
             </p>
           </AnimatedSection>
 
