@@ -231,6 +231,38 @@ export default function AdminPage() {
     }
   };
 
+  const createReleaseFromRequest = async (req) => {
+    try {
+      const relQ = query(
+        collection(db, "releases"),
+        where("pin", "==", req.pin)
+      );
+      const relSnap = await getDocs(relQ);
+      if (relSnap.empty) {
+        await addDoc(collection(db, "releases"), {
+          version: "custom-request",
+          notes: `Created from request ${req.id}`,
+          type: "custom",
+          downloadUrl: "",
+          fileSize: "—",
+          downloads: 0,
+          institutionName: req.name || "",
+          pin: req.pin,
+          createdAt: serverTimestamp(),
+        });
+        toast.success("Release created for request");
+        // refresh releases list
+        const snap = await getDocs(query(collection(db, "releases"), orderBy("createdAt", "desc")));
+        setReleases(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      } else {
+        toast.info("Release already exists");
+      }
+    } catch (e) {
+      console.error("error creating release", e);
+      toast.error("Failed to create release");
+    }
+  };
+
   const updateRequestStatus = async (id, newStatus) => {
     try {
       await updateDoc(doc(db, "requests", id), { status: newStatus, updatedAt: serverTimestamp() });
@@ -627,6 +659,7 @@ export default function AdminPage() {
                       <th className="px-6 py-3 font-medium">Email</th>
                       <th className="px-6 py-3 font-medium">Message</th>
                       <th className="px-6 py-3 font-medium">Submitted</th>
+                      <th className="px-6 py-3 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -650,6 +683,14 @@ export default function AdminPage() {
                           </select>
                         </td>
                         <td className="px-6 py-4 text-slate-400">{r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString() : "—"}</td>
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={() => createReleaseFromRequest(r)}
+                            className="text-sm text-blue-400 hover:underline"
+                          >
+                            Make release
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
