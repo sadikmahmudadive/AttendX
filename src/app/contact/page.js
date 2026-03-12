@@ -118,10 +118,11 @@ export default function ContactPage() {
                 {submitting ? "Sending…" : "Submit Request"}
               </button>
             </form>
+          </div>
           </AnimatedSection>
         </div>
       </div>
       <Footer />
-    </> // end fragment
+    </>
   );
 }
